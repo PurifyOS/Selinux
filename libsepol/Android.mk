@@ -10,6 +10,7 @@ LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/src
 
 LOCAL_SRC_FILES := \
+	src/android_m_compat.c \
 	src/assertion.c \
 	src/avrule_block.c \
 	src/avtab.c \
