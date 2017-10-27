@@ -84,7 +84,8 @@ def get_all_users_info():
 
     for d in allusers_info:
         allusers.append(d['name'])
-        users_range[d['name'].split("_")[0]] = d['range']
+        if 'range' in d:
+            users_range[d['name'].split("_")[0]] = d['range']
 
     for u in allusers:
         if u not in ["system_u", "root", "unconfined_u"]:
@@ -192,7 +193,7 @@ class HTMLManPages:
         self.old_path = path + "/"
         self.new_path = self.old_path + self.os_version + "/"
 
-        if self.os_version in fedora_releases or rhel_releases:
+        if self.os_version in fedora_releases or self.os_version in rhel_releases:
             self.__gen_html_manpages()
         else:
             print("SELinux HTML man pages can not be generated for this %s" % os_version)
@@ -262,7 +263,7 @@ Fedora or Red Hat Enterprise Linux Man Pages.</h2>
 </pre>
 	""")
         fd.close()
-        print("%s has been created") % index
+        print("%s has been created" % index)
 
     def _gen_body(self):
         html = self.new_path + self.os_version + ".html"
@@ -921,8 +922,7 @@ This manual page was auto-generated using
 .B "sepolicy manpage".
 
 .SH "SEE ALSO"
-selinux(8), %s(8), semanage(8), restorecon(8), chcon(1), sepolicy(8)
-""" % (self.domainname))
+selinux(8), %s(8), semanage(8), restorecon(8), chcon(1), sepolicy(8)""" % (self.domainname))
 
         if self.booltext != "":
             self.fd.write(", setsebool(8)")
@@ -974,7 +974,10 @@ All executeables with the default executable label, usually stored in /usr/bin a
 %s""" % ", ".join(paths))
 
     def _mcs_types(self):
-        mcs_constrained_type = next(sepolicy.info(sepolicy.ATTRIBUTE, "mcs_constrained_type"))
+        try:
+            mcs_constrained_type = next(sepolicy.info(sepolicy.ATTRIBUTE, "mcs_constrained_type"))
+        except StopIteration:
+            return
         if self.type not in mcs_constrained_type['types']:
             return
         self.fd.write ("""
